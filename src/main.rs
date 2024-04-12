@@ -1,6 +1,5 @@
 use std::net::TcpListener;
-
-use actix_learning::run;
+use actix_learning::startup::run;
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
