@@ -24,13 +24,13 @@ DB_NAME="${POSTGRES_DB:=newsletter}"
 DB_PORT="${POSTGRES_PORT:=5432}"
 DB_HOST="${POSTGRES_HOST:=localhost}"
 
-# podman run \
-#   -e POSTGRES_USER=${DB_USER} \
-#   -e POSTGRES_PASSWORD=${DB_PASSWORD} \
-#   -e POSTGRES_DB=${DB_NAME} \
-#   -p "${DB_PORT}":5432 \
-#   -d docker.io/postgres \
-#   postgres -N 1000
+podman run \
+  -e POSTGRES_USER=${DB_USER} \
+  -e POSTGRES_PASSWORD=${DB_PASSWORD} \
+  -e POSTGRES_DB=${DB_NAME} \
+  -p "${DB_PORT}":5432 \
+  -d docker.io/postgres \
+  postgres -N 1000
 
 # Keep pinging Postgres until it's ready to accept commands
 export PGPASSWORD="${DB_PASSWORD}"
