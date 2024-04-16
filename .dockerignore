@@ -1,0 +1,8 @@
+target
+
+.env
+.gitignore
+
+tests
+Dockerfile
+scripts
