@@ -21,31 +21,38 @@ impl AsRef<str> for SubscriberEmail {
 
 #[cfg(test)]
 mod tests {
+    use std::u32;
+
     use claims::assert_err;
     use fake::{faker::internet::en::SafeEmail, Fake};
+    use proptest::prelude::*;
 
     use crate::domain::SubscriberEmail;
 
     #[derive(Debug, Clone)]
     struct ValidEmailFixture(pub String);
 
-    impl quickcheck::Arbitrary for ValidEmailFixture {
-        fn arbitrary<G: quickcheck::Gen>(g: &mut G) -> Self {
-            let email = SafeEmail().fake_with_rng(g);
-            Self(email)
-        }
+    // impl quickcheck::Arbitrary for ValidEmailFixture {
+    //     fn arbitrary<G: quickcheck::Gen>(g: &mut G) -> Self {
+    //         let email = SafeEmail().fake_with_rng(g);
+    //         Self(email)
+    //     }
+    // }
+    fn email() -> impl Strategy<Value = ValidEmailFixture> {
+        any::<u32>().prop_map(|_| ValidEmailFixture(SafeEmail().fake()))
+    }
+    //
+    // #[quickcheck_macros::quickcheck]
+    // fn valid_email_are_parsed_successfully(valid_email: ValidEmailFixture) -> bool {
+    //     dbg!(&valid_email.0);
+    //     SubscriberEmail::parse(valid_email.0).is_ok()
+    // }
+    proptest! {
+         #[test]
+        fn valid_emails_are_parsed_succesfully(valid_email in email()) {
+            claims::assert_ok!(SubscriberEmail::parse(dbg!(valid_email.0)));
     }
 
-    #[quickcheck_macros::quickcheck]
-    fn valid_email_are_parsed_successfully(valid_email: ValidEmailFixture) -> bool {
-        dbg!(&valid_email.0);
-        SubscriberEmail::parse(valid_email.0).is_ok()
-    }
-
-    #[test]
-    fn valid_emails_are_parsed_succesfully() {
-        let email = SafeEmail().fake();
-        claims::assert_ok!(SubscriberEmail::parse(email));
     }
 
     #[test]
