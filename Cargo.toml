@@ -14,7 +14,6 @@ name = "actix_learning"
 [dependencies]
 actix-web = "4.5.1"
 chrono = { version = "0.4.38", features = ["clock"] }
-claims = "0.7.1"
 config = "0.14.0"
 secrecy = { version = "0.8.0", features = ["serde"] }
 serde = { version = "1.0.200", features = ["derive"] }
@@ -39,3 +38,4 @@ fake = "2.9.2"
 rand = "0.8.5"
 rand_core = "0.6.4"
 reqwest = "0.12.4"
+claims = "0.7.1"
