@@ -6,3 +6,7 @@ database:
   database_name: "newsletter"
 application:
   port: 8080
+email_client:
+  base_url: "http://localhost"
+  sender_email: "test@gmail.com"
+  api_key: "reallyrandomapikey"
