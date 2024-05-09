@@ -14,11 +14,17 @@ async fn main() -> Result<(), std::io::Error> {
 
     let url =
         reqwest::Url::parse(&configuration.email_client.base_url).expect("Cannot get the base url");
+    let timeout = configuration.email_client.timeout();
     let sender_email = configuration
         .email_client
         .sender()
         .expect("Invalid sender email address");
-    let email_client = EmailClient::new(url, sender_email, configuration.email_client.api_key);
+    let email_client = EmailClient::new(
+        url,
+        sender_email,
+        configuration.email_client.api_key,
+        timeout,
+    );
 
     let address = format!(
         "{}:{}",

@@ -10,3 +10,4 @@ email_client:
   base_url: "http://localhost"
   sender_email: "test@gmail.com"
   api_key: "reallyrandomapikey"
+  timeout_milliseconds: 1000
