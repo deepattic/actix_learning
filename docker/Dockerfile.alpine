@@ -1,0 +1,18 @@
+FROM docker.io/rust:alpine3.19 as builder
+WORKDIR /app
+RUN echo "https://mirror.jingk.ai/alpine/v3.19/main" > /etc/apk/repositories && echo "https://mirror.jingk.ai/alpine/v3.19/community" >> /etc/apk/repositories
+RUN apk update && apk add lld clang17 openssl-dev pkgconfig openssl-libs-static
+
+COPY . .
+ENV SQLX_OFFLINE true
+# Build our project
+RUN cargo build --release --bin actix_learning
+
+
+FROM docker.io/alpine:3.19.1 AS runtime
+WORKDIR /app
+RUN apk add openssl ca-certificates
+COPY --from=builder /app/target/release/actix_learning actix_learning
+COPY configuration configuration
+ENV APP_ENVIRONMENT production
+ENTRYPOINT ["./actix_learning"]
