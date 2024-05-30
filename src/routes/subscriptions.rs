@@ -95,11 +95,10 @@ pub async fn insert_subscriber(
         new_subscriber.name.as_ref(),
         Utc::now()
     );
-    //WARNING: Fix this later
-    transation
-        .execute(query)
-        .await
-        .expect("Failed in saving sub");
+    transation.execute(query).await.map_err(|e| {
+        tracing::error!("Failed to execute query: {:?}", e);
+        e
+    })?;
     Ok(subscriber_id)
 }
 
@@ -118,11 +117,10 @@ VALUES ($1, $2)"#,
         subscription_token,
         subscriber_id
     );
-    //WARNING: Fix this later
-    transation
-        .execute(query)
-        .await
-        .expect("Failed in saving sub_token");
+    transation.execute(query).await.map_err(|e| {
+        tracing::error!("Failed to execute query: {:?}", e);
+        e
+    })?;
     Ok(())
 }
 
