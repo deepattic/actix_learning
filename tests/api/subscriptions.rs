@@ -103,3 +103,17 @@ async fn subscribe_sends_a_confirmation_email_for_vaild_data() {
     let confirmation_links = app.get_confirmation_links(&email_request);
     assert_eq!(confirmation_links.html, confirmation_links.plain_text);
 }
+
+#[tokio::test]
+async fn subscriber_fails_if_there_is_a_fatal_database_error() {
+    let app = spawn_app().await;
+    let body = "name=random%20noob&email=randomnoob%40tuta.io";
+
+    sqlx::query("ALTER TABLE subscription_tokens DROP COLUMN subscription_token;")
+        .execute(&app.db_pool)
+        .await
+        .unwrap();
+
+    let response = app.post_subscriptions(body.into()).await;
+    assert_eq!(response.status().as_u16(), 500);
+}
