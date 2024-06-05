@@ -1,4 +1,5 @@
 use actix_web::{web, HttpResponse, ResponseError};
+use anyhow::Context;
 use chrono::Utc;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use sqlx::{Executor, PgPool, Postgres, Transaction};
@@ -29,6 +30,8 @@ impl TryFrom<FormData> for NewSubscriber {
 pub enum SubscribeError {
     #[error("{0}")]
     ValidationError(String),
+    #[error(transparent)]
+    UnexpectedError(#[from] anyhow::Error),
     #[error("Failed to store the confirmation token for a new subscriber")]
     StoreTokenError(#[from] StoreTokenError),
     #[error("Failed to Send the confirmation email")]
@@ -64,6 +67,7 @@ impl ResponseError for SubscribeError {
             | SubscribeError::TransactionCommitError(_)
             | SubscribeError::InsertSubscriberError(_)
             | SubscribeError::StoreTokenError(_)
+            | SubscribeError::UnexpectedError(_)
             | SubscribeError::SendEmailError(_) => {
                 actix_web::http::StatusCode::INTERNAL_SERVER_ERROR
             }
@@ -86,23 +90,29 @@ pub async fn subscribe(
     base_url: web::Data<ApplicationBaseUrl>,
 ) -> Result<HttpResponse, SubscribeError> {
     let new_subscriber = form.0.try_into().map_err(SubscribeError::ValidationError)?;
-    let mut transaction = pool.begin().await.map_err(SubscribeError::PoolError)?;
+    let mut transaction = pool
+        .begin()
+        .await
+        .context("Failed to acquire a Postgress coneection form the pool")?;
     let subscriber_id = insert_subscriber(&new_subscriber, &mut transaction)
         .await
-        .map_err(SubscribeError::InsertSubscriberError)?;
+        .context("failed to insert new subscriber in the database")?;
     let subscription_token = generate_subscription_token();
-    store_token(subscriber_id, &subscription_token, &mut transaction).await?;
+    store_token(subscriber_id, &subscription_token, &mut transaction)
+        .await
+        .context("Failed to store the confirmation token for a new subscriber.")?;
     transaction
         .commit()
         .await
-        .map_err(SubscribeError::TransactionCommitError)?;
+        .context("Failed to commit SQL transaction to store a new subscriber.")?;
     send_confirmation_email(
         &email_client,
         new_subscriber,
         &base_url.0,
         &subscription_token,
     )
-    .await?;
+    .await
+    .context("Failed to send a confirmation email.")?;
     Ok(HttpResponse::Ok().finish())
 }
 
