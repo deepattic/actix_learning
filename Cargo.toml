@@ -30,7 +30,7 @@ uuid = { version = "1.10.0", features = ["v4"] }
 validator = "0.18.1"
 reqwest = { version = "0.12.5", features = ["json"] }
 rand = { version = "0.8.5", features = ["std_rng"] }
-thiserror = "1.0.61"
+thiserror = "1.0.62"
 anyhow = "1.0.86"
 
 [dev-dependencies]
