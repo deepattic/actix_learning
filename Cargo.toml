@@ -18,7 +18,7 @@ config = "0.14.0"
 secrecy = { version = "0.8.0", features = ["serde"] }
 serde = { version = "1.0.204", features = ["derive"] }
 serde-aux = "4.5.0"
-sqlx = { version = "0.7.4", features = ["runtime-tokio-rustls", "macros", "postgres", "uuid", "chrono", "migrate"] }
+sqlx = { version = "0.8.0", features = ["runtime-tokio-rustls", "macros", "postgres", "uuid", "chrono", "migrate"] }
 tokio = { version = "1.39.1", features = ["macros", "rt-multi-thread"] }
 tracing = { version = "0.1.40", features = ["log"] }
 tracing-actix-web = "0.7.11"
